@@ -124,7 +124,20 @@ func main() {
 			return c.String(http.StatusBadRequest, "400 Bad Request\n")
 		}
 
-		key := randString(6)
+		var key string
+		_ = db.View(func(txn *badger.Txn) error {
+			for {
+				key = randString(6)
+				_, err = txn.Get([]byte(key))
+				if err == badger.ErrKeyNotFound {
+					break
+				} else {
+					c.Logger().Info("random string collision")
+				}
+			}
+			return nil
+		})
+
 		err = db.Update(func(txn *badger.Txn) error {
 			err = txn.Set([]byte(key), []byte(links))
 			return err
