@@ -133,7 +133,7 @@ func main() {
 			e.Logger.Error(err)
 		}
 
-		return c.String(http.StatusCreated, baseURL.ResolveReference(&url.URL{Path: "."}).String()+"\n")
+		return c.String(http.StatusCreated, baseURL.ResolveReference(&url.URL{Path: "."}).String()+key+"\n")
 	})
 
 	e.GET("/:slug", func(c echo.Context) error {
