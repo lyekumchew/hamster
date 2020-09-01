@@ -1,0 +1,26 @@
+name: main
+
+on: [ push ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@master
+      - name: Build & Publish to Registry
+        uses: elgohr/Publish-Docker-Github-Action@master
+        with:
+          name: lyekumchew/hamster
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          dockerfile: ${{ github.workspace }}/Dockerfile
+          workdir: ${{ github.workspace }}
+      - name: Docker Login
+        run: docker login docker.pkg.github.com -u $GITHUB_ACTOR -p $GITHUB_TOKEN
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      - name: Docker Tag Image
+        run: docker tag lyekumchew/hamster docker.pkg.github.com/$GITHUB_REPOSITORY/hamster:latest
+      - name: Publish to Github Packages
+        run: docker push docker.pkg.github.com/$GITHUB_REPOSITORY/hamster:latest
