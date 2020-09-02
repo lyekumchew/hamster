@@ -2,7 +2,7 @@ version: "3.1"
 
 services:
   hamster:
-    image: lyekumchew/hamster
+    image: ghcr.io/lyekumchew/hamster:latest
     environment:
       - SECRET=
       - BASE=

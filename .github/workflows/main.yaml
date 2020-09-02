@@ -8,19 +8,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@master
-      - name: Build & Publish to Registry
-        uses: elgohr/Publish-Docker-Github-Action@master
-        with:
-          name: lyekumchew/hamster
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-          dockerfile: ${{ github.workspace }}/Dockerfile
-          workdir: ${{ github.workspace }}
       - name: Docker Login
         run:  echo ${{ secrets.CR_PAT }} | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
-        env:
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-      - name: Docker Tag Image
-        run: docker tag lyekumchew/hamster ghcr.io/$GITHUB_ACTOR/hamster:latest
+      - name: Docker Build Image
+        run: docker build -t ghcr.io/$GITHUB_ACTOR/hamster:latest .
       - name: Publish to Github Packages
         run: docker push ghcr.io/$GITHUB_ACTOR/hamster:latest
