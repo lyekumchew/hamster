@@ -17,10 +17,10 @@ jobs:
           dockerfile: ${{ github.workspace }}/Dockerfile
           workdir: ${{ github.workspace }}
       - name: Docker Login
-        run: docker login docker.pkg.github.com -u $GITHUB_ACTOR -p $GITHUB_TOKEN
+        run:  echo ${{ secrets.CR_PAT }} | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
       - name: Docker Tag Image
-        run: docker tag lyekumchew/hamster docker.pkg.github.com/$GITHUB_REPOSITORY/hamster:latest
+        run: docker tag lyekumchew/hamster ghcr.io/$GITHUB_ACTOR/hamster:latest
       - name: Publish to Github Packages
-        run: docker push docker.pkg.github.com/$GITHUB_REPOSITORY/hamster:latest
+        run: docker push ghcr.io/$GITHUB_ACTOR/hamster:latest
