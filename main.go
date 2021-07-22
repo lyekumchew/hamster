@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"flag"
 	"math/rand"
 	"net/http"
@@ -13,8 +14,6 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/labstack/gommon/log"
-
-	"github.com/pkg/errors"
 )
 
 // usage: curl -F "url=domain.com" -F "secret=75d89a1775806a456eba2452e3ff3695" http://example.com
