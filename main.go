@@ -1,26 +1,28 @@
 package main
 
 import (
-	"bytes"
 	"flag"
-	"github.com/dgraph-io/badger/v2"
-	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
-	"github.com/labstack/gommon/log"
-	"github.com/pkg/errors"
-	"html/template"
 	"math/rand"
 	"net/http"
 	"net/url"
 	"time"
 	"unsafe"
+
+	"github.com/dgraph-io/badger/v3"
+
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
+	"github.com/labstack/gommon/log"
+
+	"github.com/pkg/errors"
 )
+
+// usage: curl -F "url=domain.com" -F "secret=75d89a1775806a456eba2452e3ff3695" http://example.com
 
 const letterBytes = "23456789abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ"
 
 var src = rand.NewSource(time.Now().UnixNano())
 
-var index string
 var baseURL *url.URL
 
 var addr = flag.String("addr", ":5050", "the address to listen on")
@@ -57,12 +59,12 @@ func linksCheck(links string) error {
 		return err
 	}
 	if u.Scheme != "https" && u.Scheme != "http" {
-		return errors.New("url.Scheme must be http or https.")
+		return errors.New("url.Scheme must be http or https")
 	}
 	return nil
 }
 
-func init() {
+func main() {
 	flag.Parse()
 
 	var err error
@@ -70,33 +72,6 @@ func init() {
 		panic(err)
 	}
 
-	buf := bytes.NewBuffer(nil)
-	if err = template.Must(template.New("index").Parse(`
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width">
-    <title>Hamster</title>
-</head>
-<body>
-<pre>
-Daddy! what is link shortening?
-
-Look below...
-
-$ <b>curl -F "url=<i>domain.com</i>" -F "secret=<i>75d89a1775806a456eba2452e3ff3695</i>" {{ .base }}</b>
-{{ .base }}tzSVSr
-</pre>
-</body>
-</html>
-`)).Execute(buf, map[string]string{"base": baseURL.ResolveReference(&url.URL{Path: "."}).String()}); err != nil {
-		panic(err)
-	}
-	index = buf.String()
-}
-
-func main() {
 	db, err := badger.Open(badger.DefaultOptions("./data"))
 	if err != nil {
 		log.Fatal(err)
@@ -108,7 +83,7 @@ func main() {
 	e.Logger.SetLevel(log.INFO)
 
 	e.GET("/", func(c echo.Context) error {
-		return c.HTML(http.StatusOK, index)
+		return c.HTML(http.StatusOK, "")
 	})
 
 	e.POST("/", func(c echo.Context) error {
@@ -129,7 +104,7 @@ func main() {
 			for {
 				key = randString(6)
 				_, err = txn.Get([]byte(key))
-				if err == badger.ErrKeyNotFound {
+				if errors.Is(err, badger.ErrKeyNotFound) {
 					break
 				} else {
 					c.Logger().Info("random string collision")

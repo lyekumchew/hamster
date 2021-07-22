@@ -4,7 +4,7 @@ services:
   hamster:
     image: ghcr.io/lyekumchew/hamster:latest
     environment:
-      - SECRET=
+      - SECRET=1561875070c8622e65452593395e1f9a3dc2f337
       - BASE=
     ports:
       - "5050:5050"
