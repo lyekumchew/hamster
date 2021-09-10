@@ -1,4 +1,4 @@
-FROM golang:alpine as build
+FROM golang:1.17-alpine as build
 ADD . src
 WORKDIR src
 RUN GOOS=linux CGO_ENABLED=0 go build -trimpath -ldflags "-s -w" -o /src/hamster main.go
